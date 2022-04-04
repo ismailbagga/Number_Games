@@ -3,15 +3,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:number_game/providers/AuthProvider.dart';
+import 'package:number_game/screens/Game/firstlevel_screen.dart';
+import 'package:number_game/screens/Game/fourthlevel_screen.dart';
+import 'package:number_game/screens/Game/pause_screen.dart';
+import 'package:number_game/screens/Game/secondlevel_screen.dart';
+import 'package:number_game/screens/Game/thirdlevel_screen.dart';
 import 'package:number_game/screens/SingleLevel_screen.dart';
 import 'package:number_game/screens/challenges_screen.dart';
 import 'package:number_game/screens/levels_screen.dart';
 import 'package:number_game/screens/menu_screen.dart';
 import 'package:number_game/screens/play_screen.dart';
+import 'package:number_game/screens/win_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]).then((value) => runApp(MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -39,6 +49,12 @@ class MyApp extends StatelessWidget {
           LevelsScreen.path: (context) => LevelsScreen(),
           PlayScreen.path: (context) => PlayScreen(),
           SingleLevelScreen.path: (context) => SingleLevelScreen(),
+          LevelOneGame.path: (context) => LevelOneGame(),
+          SecondLevelGame.path: (context) => SecondLevelGame(),
+          ThirdLevelGame.path: (context) => ThirdLevelGame(),
+          FourthLevelGame.path: (context) => FourthLevelGame(),
+          WinScreen.path: (context) => WinScreen(),
+          PauseScreen.path: (context) => PauseScreen(),
         },
       ),
     );

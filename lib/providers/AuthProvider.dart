@@ -1,11 +1,15 @@
 import 'package:flutter/cupertino.dart';
+import 'package:number_game/models/GameQuestion.dart';
 import 'package:number_game/models/Levels.dart';
 
 class AuthProvider with ChangeNotifier {
   bool _login = false;
-  var levels = [
-    ['Game1', 'Game2', 'Game3'],
-    ['sqds']
+  // const List<GameQuestion> level1 = [];
+  List<List<Map<String, int>>> levels = [
+    GameQuestion1.getLevel1Questions(),
+    GameQuestion2.getLevel1Questions(),
+    GameQuestion3.getLevel1Questions(),
+    GameQuestion3.getLevel1Questions(),
   ];
   set setLoginState(bool state) {
     _login = state;
@@ -16,7 +20,7 @@ class AuthProvider with ChangeNotifier {
     return _login;
   }
 
-  List<String> getGames(Levels level) {
+  List<Map<String, int>> getGames(Levels level) {
     if (level == Levels.level_1) {
       return [...levels[0]];
     } else if (level == Levels.level_2) {
