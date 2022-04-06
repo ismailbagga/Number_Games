@@ -36,7 +36,8 @@ class PauseScreen extends StatelessWidget {
             alignment: Alignment.center,
             color: const Color.fromARGB(255, 5, 109, 95),
             margin: EdgeInsets.only(
-              top: query.height * 0.2,
+              top: query.height * 0.1,
+              bottom: query.height * 0.15,
               // left: query.width * 0.05,
               // right: query.width * 0.05,
             ),
@@ -48,13 +49,21 @@ class PauseScreen extends StatelessWidget {
             width: query.width * 0.9,
           ),
           buttonBuilder(
-            'Play',
-            () {},
-            width: 320,
+            'Continue',
+            () {
+              Navigator.of(context).pop('none');
+            },
+            width: 350,
           ),
           buttonBuilder(
-            'More Challenges',
+            'Levels',
             () => {},
+          ),
+          buttonBuilder(
+            'Quite',
+            () {
+              Navigator.of(context).pop('q');
+            },
           ),
         ]),
       ),

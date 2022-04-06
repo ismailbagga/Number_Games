@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:number_game/screens/Game/pause_screen.dart';
 
 import '../../models/GameQuestion.dart';
 import '../../widget/NavBar.dart';
@@ -84,7 +85,15 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
     super.didChangeDependencies();
   }
 
-  void pause() {}
+  void pause() {
+    Navigator.of(context).pushNamed(PauseScreen.path).then((value) {
+      String parameter = value as String;
+      if (parameter == 'q') {
+        Navigator.of(context).pop();
+      } else if (parameter == 'l') {}
+    });
+  }
+
   void fillNumOnDrop(int num, Operation op) {
     if (op == Operation.plus) {
       plus = num;
