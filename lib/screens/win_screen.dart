@@ -6,11 +6,11 @@ class WinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
-    final route = (ModalRoute.of(context)?.settings.arguments
-        as Map<String, int>)['level'];
-    print('id i came from : $route');
-    final ButtonStyle style =
-        ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
+    // final route = (ModalRoute.of(context)?.settings.arguments
+    //     as Map<String, int>)['level'];
+
+    // final ButtonStyle style =
+    //     ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 54, 244, 70),

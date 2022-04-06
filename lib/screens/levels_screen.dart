@@ -61,7 +61,7 @@ class LevelsScreen extends StatelessWidget {
       ),
       body: Container(
         padding: EdgeInsets.only(top: query.padding.top + 10),
-        color: Color.fromARGB(255, 15, 255, 67),
+        color: const Color.fromARGB(255, 15, 255, 67),
         child: Center(
           child: Column(children: [
             buildLevelButton('Level 1', Colors.amberAccent, () {

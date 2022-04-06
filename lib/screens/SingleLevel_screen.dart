@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter/rendering.dart';
 import 'package:number_game/models/Levels.dart';
 import 'package:number_game/providers/AuthProvider.dart';
 import 'package:number_game/screens/Game/firstlevel_screen.dart';
@@ -27,7 +26,7 @@ class SingleLevelScreen extends StatelessWidget {
     }
   }
 
-  Widget getGameBtn(int level, VoidCallback onClick) {
+  Widget getGameBtn(int level, int currentLevel, VoidCallback onClick) {
     return InkWell(
       onTap: onClick,
       child: Container(
@@ -35,14 +34,16 @@ class SingleLevelScreen extends StatelessWidget {
           color: const Color.fromARGB(255, 6, 70, 88),
           child: Center(
               child: FittedBox(
-            child: Text(
-              '$level',
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+            child: level > currentLevel
+                ? const Icon(Icons.lock)
+                : Text(
+                    '$level',
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
           ))),
     );
   }
@@ -70,6 +71,8 @@ class SingleLevelScreen extends StatelessWidget {
     final media = MediaQuery.of(context).size;
     final level = (ModalRoute.of(context)?.settings.arguments
         as Map<String, Object>)['level'] as Levels;
+    final currenLevel = provider.getCurrentGameInCertainLevel(level);
+    print(currenLevel);
 
     List<Map<String, int>> games = provider.getGames(level);
     final title = pageLevel(level);
@@ -88,7 +91,7 @@ class SingleLevelScreen extends StatelessWidget {
                 mainAxisExtent: 60,
               ),
               children: games
-                  .map((item) => getGameBtn(++count, () {
+                  .map((item) => getGameBtn(++count, currenLevel, () {
                         navigateToLevel(item, level, context);
                         // Navigator.of(context).pushNamed(gameLevel(level),
                         //     arguments: {'item': item});
