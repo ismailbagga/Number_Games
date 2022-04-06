@@ -3,8 +3,12 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:number_game/models/GameQuestion.dart';
+import 'package:number_game/models/Levels.dart';
+import 'package:number_game/providers/AuthProvider.dart';
 import 'package:number_game/screens/win_screen.dart';
+import 'package:provider/provider.dart';
 import '../../widget/NavBar.dart';
+import 'pause_screen.dart';
 
 class LevelOneGame extends StatefulWidget {
   static const String path = '/levelOneGame';
@@ -25,34 +29,30 @@ class _LevelOneGameState extends State<LevelOneGame> {
   List<bool> completeOperations = List.generate(4, (index) => false);
   @override
   void initState() {
-    // final route = (ModalRoute.of(context)?.settings.arguments
-    //     as Map<String, Map<String, int>>)['item'];
-    // numberInCenter = route!['start with']!;
-    // numberToLookFor = route['look For']!;
-    // applyWith = route['apply with']!;
-    // currentNumberInCenter = numberInCenter;
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    print(completeOperations);
     if (isVisited) return;
     final route = (ModalRoute.of(context)?.settings.arguments
         as Map<String, Map<String, int>>)['item'];
     id = route!['id'] as int;
-    print(id);
     numberInCenter = route['start with']!;
     numberToLookFor = route['look For']!;
     applyWith = route['apply with']!;
     currentNumberInCenter = numberInCenter.toString();
-    print('in state life cycle $numberInCenter');
     isVisited = true;
     super.didChangeDependencies();
   }
 
   void pause() {
-    print('call');
+    Navigator.of(context).pushNamed(PauseScreen.path).then((value) {
+      String parameter = value as String;
+      if (parameter == 'q') {
+        Navigator.of(context).pop();
+      } else if (parameter == 'l') {}
+    });
   }
 
   Widget arithmaticBtn(
@@ -130,15 +130,18 @@ class _LevelOneGameState extends State<LevelOneGame> {
       return;
     }
     if (res == numberToLookFor) {
+      final provider = Provider.of<AuthProvider>(context);
+      if (provider.getCurrentGameInCertainLevel(Levels.level_1) < 20) {
+        provider.increaseLevel(Levels.level_1);
+      }
       Navigator.of(context)
           .pushNamed(WinScreen.path, arguments: {'level': id}).then((value) {
         // print(value);
         bool isRetry = value as bool;
-        print('re try');
+
         if (isRetry == true) {
           reset();
         } else {
-          print('lets pop');
           Navigator.of(context).pop(context);
         }
       });
@@ -192,12 +195,6 @@ class _LevelOneGameState extends State<LevelOneGame> {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
-    // final route = (ModalRoute.of(context)?.settings.arguments
-    //     as Map<String, Map<String, int>>)['item'];
-    // numberInCenter = route!['start with']!;
-    // numberToLookFor = route['look For']!;
-    // applyWith = route['apply with']!;
-
     return Scaffold(
       backgroundColor: Colors.amberAccent,
       body: Center(

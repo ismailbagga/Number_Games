@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:number_game/screens/Game/pause_screen.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/GameQuestion.dart';
+import '../../models/Levels.dart';
+import '../../providers/AuthProvider.dart';
 import '../../widget/NavBar.dart';
 import '../win_screen.dart';
 
@@ -211,6 +214,10 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
       return;
     }
     if (res == numberToLookFor) {
+      final provider = Provider.of<AuthProvider>(context);
+      if (provider.getCurrentGameInCertainLevel(Levels.level_4) < 20) {
+        provider.increaseLevel(Levels.level_4);
+      }
       Navigator.of(context)
           .pushNamed(WinScreen.path, arguments: {'level': id}).then((value) {
         // print(value);

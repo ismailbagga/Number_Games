@@ -1,10 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:number_game/providers/AuthProvider.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/GameQuestion.dart';
+import '../../models/Levels.dart';
 import '../../widget/NavBar.dart';
 import '../win_screen.dart';
+import 'pause_screen.dart';
 
 class SecondLevelGame extends StatefulWidget {
   static const path = '/secondGame';
@@ -58,7 +62,12 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
   }
 
   void pause() {
-    print('call');
+    Navigator.of(context).pushNamed(PauseScreen.path).then((value) {
+      String parameter = value as String;
+      if (parameter == 'q') {
+        Navigator.of(context).pop();
+      } else if (parameter == 'l') {}
+    });
   }
 
   Widget arithmaticBtn(
@@ -136,6 +145,10 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
       return;
     }
     if (res == numberToLookFor) {
+      final provider = Provider.of<AuthProvider>(context);
+      if (provider.getCurrentGameInCertainLevel(Levels.level_2) < 20) {
+        provider.increaseLevel(Levels.level_2);
+      }
       Navigator.of(context)
           .pushNamed(WinScreen.path, arguments: {'level': id}).then((value) {
         // print(value);
