@@ -4,6 +4,12 @@ import 'package:number_game/models/Levels.dart';
 
 class AuthProvider with ChangeNotifier {
   bool _login = false;
+  var currentGame = {
+    '1': 0,
+    '2': 0,
+    '3': 0,
+    '4': 0,
+  };
   // const List<GameQuestion> level1 = [];
   List<List<Map<String, int>>> levels = [
     GameQuestion1.getLevel1Questions(),
