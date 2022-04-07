@@ -12,7 +12,6 @@ import 'pause_screen.dart';
 
 class SecondLevelGame extends StatefulWidget {
   static const path = '/secondGame';
-
   const SecondLevelGame({Key? key}) : super(key: key);
 
   @override
@@ -146,9 +145,9 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
     }
     if (res == numberToLookFor) {
       final provider = Provider.of<AuthProvider>(context);
-      if (provider.getCurrentGameInCertainLevel(Levels.level_2) < 20) {
-        provider.increaseLevel(Levels.level_2);
-      }
+      // if (provider.getCurrentGameInCertainLevel(Levels.level_2) < 20) {
+      //   provider.increaseLevel(Levels.level_2);
+      // }
       Navigator.of(context)
           .pushNamed(WinScreen.path, arguments: {'level': id}).then((value) {
         // print(value);

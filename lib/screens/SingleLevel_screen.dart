@@ -26,7 +26,16 @@ class SingleLevelScreen extends StatelessWidget {
     }
   }
 
-  Widget getGameBtn(int level, int currentLevel, VoidCallback onClick) {
+  Widget getGameBtn(int level, List<dynamic> completedGames, int gameId,
+      VoidCallback onClick) {
+    bool found = false;
+    for (int i = 0; i < completedGames.length; i++) {
+      if (gameId == (completedGames[i]['gameId'] as int)) {
+        found = true;
+        break;
+      }
+    }
+
     return InkWell(
       onTap: onClick,
       child: Container(
@@ -34,7 +43,7 @@ class SingleLevelScreen extends StatelessWidget {
           color: const Color.fromARGB(255, 6, 70, 88),
           child: Center(
               child: FittedBox(
-            child: level > currentLevel
+            child: !found
                 ? const Icon(Icons.lock)
                 : Text(
                     '$level',
@@ -71,9 +80,7 @@ class SingleLevelScreen extends StatelessWidget {
     final media = MediaQuery.of(context).size;
     final level = (ModalRoute.of(context)?.settings.arguments
         as Map<String, Object>)['level'] as Levels;
-    final currenLevel = provider.getCurrentGameInCertainLevel(level);
-    print(currenLevel);
-
+    final completedGames = provider.completedGames;
     List<Map<String, int>> games = provider.getGames(level);
     final title = pageLevel(level);
     return Scaffold(
@@ -91,7 +98,8 @@ class SingleLevelScreen extends StatelessWidget {
                 mainAxisExtent: 60,
               ),
               children: games
-                  .map((item) => getGameBtn(++count, currenLevel, () {
+                  .map((item) => getGameBtn(
+                          ++count, completedGames, item['id'] as int, () {
                         navigateToLevel(item, level, context);
                         // Navigator.of(context).pushNamed(gameLevel(level),
                         //     arguments: {'item': item});

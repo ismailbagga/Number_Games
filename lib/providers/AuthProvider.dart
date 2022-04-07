@@ -4,35 +4,38 @@ import 'package:number_game/models/Levels.dart';
 
 class AuthProvider with ChangeNotifier {
   bool _login = false;
-  final Map<String, int> _currentGame = {
-    '1': 1,
-    '2': 1,
-    '3': 1,
-    '4': 1,
-  };
-  void increaseLevel(Levels level) {
-    if (level == Levels.level_1) {
-      _currentGame['1'] = _currentGame['1']! + 1;
-    } else if (level == Levels.level_2) {
-      _currentGame['2'] = _currentGame['2']! + 1;
-    } else if (level == Levels.level_3) {
-      _currentGame['3'] = _currentGame['3']! + 1;
-    } else {
-      _currentGame['4'] = _currentGame['4']! + 1;
-    }
-    notifyListeners();
+  int? userId;
+  // {gameId:0,userId:null,}
+  var completedGames = [
+    {'gameId': 1, 'userId': null},
+    {'gameId': 21, 'userId': null},
+    {'gameId': 41, 'userId': null},
+    {'gameId': 61, 'userId': null}
+  ];
+  List<dynamic> retrieveCompletedLevels() {
+    return [...completedGames];
   }
 
-  int getCurrentGameInCertainLevel(Levels level) {
-    if (level == Levels.level_1) {
-      return _currentGame['1']!;
-    } else if (level == Levels.level_2) {
-      return _currentGame['2']!;
-    } else if (level == Levels.level_3) {
-      return _currentGame['3']!;
-    } else {
-      return _currentGame['4']!;
+  bool isGameCompleted(gameId) {
+    for (int i = 0; i < completedGames.length; i++) {
+      if (gameId == (completedGames[i]['gameId'] as int)) {
+        return true;
+      }
     }
+    return false;
+  }
+
+  void increaseLevel(Levels level, int gameId) {
+    bool found = false;
+    for (int i = 0; i < completedGames.length; i++) {
+      if (gameId == (completedGames[i]['gameId'] as int)) {
+        found = true;
+        break;
+      }
+    }
+    if (found) return;
+    completedGames.add({'gameId': gameId, 'userId': userId});
+    notifyListeners();
   }
 
   // const List<GameQuestion> level1 = [];

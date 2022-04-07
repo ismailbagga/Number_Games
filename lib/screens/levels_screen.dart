@@ -21,7 +21,8 @@ class LevelsScreen extends StatelessWidget {
         ),
         child: FittedBox(
             child: Text(text,
-                style: TextStyle(fontSize: 48, fontWeight: FontWeight.w700))),
+                style: const TextStyle(
+                    fontSize: 48, fontWeight: FontWeight.w700))),
       ),
     );
   }
