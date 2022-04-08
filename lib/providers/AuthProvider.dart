@@ -16,6 +16,7 @@ import 'package:flutter/services.dart' show ByteData, rootBundle;
 class AuthProvider with ChangeNotifier {
   bool _login = false;
   int? userId;
+  Map<String, Map<int, String>> languages = {};
   // {gameId:0,userId:null,}
   Future<void> retrieveAppData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -30,24 +31,43 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> setAvailablLanguage() async {
     /* Your blah blah code here */
-    print('set languages');
+    // print('set languages');
     ByteData data = await rootBundle.load("assets/languages.xlsx");
     var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     var excel = Excel.decodeBytes(bytes);
+    int count = 0;
 
     for (var table in excel.tables.keys) {
       print(table); //sheet Name
-      print(excel.tables[table]!.maxCols);
-      print(excel.tables[table]!.maxRows);
+
       for (var row in excel.tables[table]!.rows) {
-        print("$row");
+        if (count == 0) {
+          for (String item in row) {
+            languages[item] = {};
+          }
+          count++;
+        } else {
+          final keys = languages.keys.toList();
+          for (int i = 0; i < keys.length; i++) {
+            languages[keys[i]] = {}
+              ..addAll(languages[keys[i]]!)
+              ..addAll({count: row[i]});
+          }
+          count++;
+        }
       }
     }
+    // SharedPreferences.getInstance().then((value) {
+    //   value.setString('langauges', json.encode(languages));
+    // });
   }
 
   AuthProvider() {
     retrieveAppData();
-    setAvailablLanguage();
+
+    if (languages.isEmpty) {
+      setAvailablLanguage();
+    }
   }
   List<dynamic> availableGames = [
     {'gameId': 1, 'userId': null, 'completed': false},
