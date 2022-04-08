@@ -129,11 +129,9 @@ class _LevelOneGameState extends State<LevelOneGame> {
       });
       return;
     }
-    if (res == numberToLookFor) {
+    if (true) {
       final provider = Provider.of<AuthProvider>(context, listen: false);
-      // if (provider.getCurrentGameInCertainLevel(Levels.level_1) < 20) {
-      //   provider.increaseLevel(Levels.level_1);
-      // }
+      provider.increaseLevel(Levels.level_1, id);
       Navigator.of(context)
           .pushNamed(WinScreen.path, arguments: {'level': id}).then((value) {
         // print(value);

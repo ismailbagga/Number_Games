@@ -1,24 +1,67 @@
+import 'dart:convert';
+
+// import 'package:excel/excel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:number_game/models/GameQuestion.dart';
 import 'package:number_game/models/Levels.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'package:path/path.dart';
+import 'package:excel/excel.dart';
+
+import 'package:flutter/services.dart' show ByteData, rootBundle;
+
+// import 'package:flutter/services.dart' show ByteData, rootBundle;
 
 class AuthProvider with ChangeNotifier {
   bool _login = false;
   int? userId;
   // {gameId:0,userId:null,}
-  var completedGames = [
-    {'gameId': 1, 'userId': null},
-    {'gameId': 21, 'userId': null},
-    {'gameId': 41, 'userId': null},
-    {'gameId': 61, 'userId': null}
+  Future<void> retrieveAppData() async {
+    final prefs = await SharedPreferences.getInstance();
+    print('let start with it ');
+    if (!prefs.containsKey("availableGames")) return;
+    print('retrieve...');
+    availableGames =
+        json.decode(prefs.getString("availableGames")!) as List<dynamic>;
+    print(availableGames);
+    notifyListeners();
+  }
+
+  Future<void> setAvailablLanguage() async {
+    /* Your blah blah code here */
+    print('set languages');
+    ByteData data = await rootBundle.load("assets/languages.xlsx");
+    var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    var excel = Excel.decodeBytes(bytes);
+
+    for (var table in excel.tables.keys) {
+      print(table); //sheet Name
+      print(excel.tables[table]!.maxCols);
+      print(excel.tables[table]!.maxRows);
+      for (var row in excel.tables[table]!.rows) {
+        print("$row");
+      }
+    }
+  }
+
+  AuthProvider() {
+    retrieveAppData();
+    setAvailablLanguage();
+  }
+  List<dynamic> availableGames = [
+    {'gameId': 1, 'userId': null, 'completed': false},
+    {'gameId': 21, 'userId': null, 'completed': false},
+    {'gameId': 41, 'userId': null, 'completed': false},
+    {'gameId': 61, 'userId': null, 'completed': false}
   ];
   List<dynamic> retrieveCompletedLevels() {
-    return [...completedGames];
+    return [...availableGames];
   }
 
   bool isGameCompleted(gameId) {
-    for (int i = 0; i < completedGames.length; i++) {
-      if (gameId == (completedGames[i]['gameId'] as int)) {
+    for (int i = 0; i < availableGames.length; i++) {
+      if (gameId == (availableGames[i]['gameId'] as int)) {
         return true;
       }
     }
@@ -26,15 +69,23 @@ class AuthProvider with ChangeNotifier {
   }
 
   void increaseLevel(Levels level, int gameId) {
+    print('called with $gameId');
     bool found = false;
-    for (int i = 0; i < completedGames.length; i++) {
-      if (gameId == (completedGames[i]['gameId'] as int)) {
+    for (int i = 0; i < availableGames.length; i++) {
+      if (gameId == (availableGames[i]['gameId'] as int)) {
+        availableGames[i]['completed'] = true;
         found = true;
         break;
       }
     }
-    if (found) return;
-    completedGames.add({'gameId': gameId, 'userId': userId});
+    if (!found) {
+      availableGames
+          .add({'gameId': gameId, 'userId': userId, 'completed': true});
+      SharedPreferences.getInstance().then((value) {
+        final temp = json.encode(availableGames);
+        value.setString('availableGames', temp);
+      });
+    }
     notifyListeners();
   }
 

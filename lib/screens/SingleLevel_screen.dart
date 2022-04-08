@@ -30,14 +30,16 @@ class SingleLevelScreen extends StatelessWidget {
       VoidCallback onClick) {
     bool found = false;
     for (int i = 0; i < completedGames.length; i++) {
-      if (gameId == (completedGames[i]['gameId'] as int)) {
+      dynamic game = completedGames[i];
+      if (gameId == game['gameId'] ||
+          (game['completed'] as bool == true && gameId == game['gameId'] + 1)) {
         found = true;
         break;
       }
     }
 
     return InkWell(
-      onTap: onClick,
+      onTap: found ? onClick : () {},
       child: Container(
           padding: const EdgeInsets.all(5),
           color: const Color.fromARGB(255, 6, 70, 88),
@@ -80,9 +82,10 @@ class SingleLevelScreen extends StatelessWidget {
     final media = MediaQuery.of(context).size;
     final level = (ModalRoute.of(context)?.settings.arguments
         as Map<String, Object>)['level'] as Levels;
-    final completedGames = provider.completedGames;
+    final completedGames = provider.retrieveCompletedLevels();
     List<Map<String, int>> games = provider.getGames(level);
     final title = pageLevel(level);
+
     return Scaffold(
         appBar: AppBar(title: Text(title)),
         backgroundColor: const Color.fromARGB(255, 39, 106, 215),

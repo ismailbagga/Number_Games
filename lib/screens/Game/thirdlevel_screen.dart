@@ -151,9 +151,8 @@ class _ThirdLevelGameState extends State<ThirdLevelGame> {
     }
     if (res == numberToLookFor) {
       final provider = Provider.of<AuthProvider>(context);
-      // if (provider.getCurrentGameInCertainLevel(Levels.level_3) < 20) {
-      //   provider.increaseLevel(Levels.level_3);
-      // }
+      provider.increaseLevel(Levels.level_3, id);
+
       Navigator.of(context)
           .pushNamed(WinScreen.path, arguments: {'level': id}).then((value) {
         // print(value);

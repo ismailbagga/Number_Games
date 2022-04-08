@@ -145,9 +145,8 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
     }
     if (res == numberToLookFor) {
       final provider = Provider.of<AuthProvider>(context);
-      // if (provider.getCurrentGameInCertainLevel(Levels.level_2) < 20) {
-      //   provider.increaseLevel(Levels.level_2);
-      // }
+      provider.increaseLevel(Levels.level_2, id);
+
       Navigator.of(context)
           .pushNamed(WinScreen.path, arguments: {'level': id}).then((value) {
         // print(value);
