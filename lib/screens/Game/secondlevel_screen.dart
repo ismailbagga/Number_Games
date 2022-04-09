@@ -38,7 +38,10 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
     // numberToLookFor = route['look For']!;
     // applyWith = route['apply with']!;
     // currentNumberInCenter = numberInCenter;
+
     super.initState();
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+    provider.setNewCurrentlevel(Levels.level_2);
   }
 
   @override
@@ -144,7 +147,7 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
       return;
     }
     if (res == numberToLookFor) {
-      final provider = Provider.of<AuthProvider>(context);
+      final provider = Provider.of<AuthProvider>(context, listen: false);
       provider.increaseLevel(Levels.level_2, id);
 
       Navigator.of(context)
@@ -209,6 +212,7 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
+
     // final route = (ModalRoute.of(context)?.settings.arguments
     //     as Map<String, Map<String, int>>)['item'];
     // numberInCenter = route!['start with']!;

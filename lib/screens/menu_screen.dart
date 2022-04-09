@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:number_game/models/Levels.dart';
 import 'package:number_game/providers/AuthProvider.dart';
+import 'package:number_game/screens/SingleLevel_screen.dart';
 import 'package:number_game/screens/challenges_screen.dart';
 import 'package:number_game/screens/levels_screen.dart';
 import 'package:number_game/screens/play_screen.dart';
@@ -57,17 +59,20 @@ class MenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isLogin = Provider.of<AuthProvider>(context).isUserLoggedIn();
+    final provider = Provider.of<AuthProvider>(context);
+    bool isLogin = provider.isUserLoggedIn();
+
     final query = MediaQuery.of(context).size;
+    print('called from build');
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 21, 31, 5),
+      backgroundColor: Color.fromARGB(255, 3, 48, 50),
       body: Center(
         child: Column(children: [
           Container(
             alignment: Alignment.center,
             color: const Color.fromARGB(255, 5, 109, 95),
             margin: EdgeInsets.only(
-              top: query.height * 0.2,
+              top: query.height * 0.12,
               // left: query.width * 0.05,
               // right: query.width * 0.05,
             ),
@@ -79,16 +84,20 @@ class MenuScreen extends StatelessWidget {
             width: query.width * 0.9,
           ),
           buttonBuilder(
-            'Play',
-            () => naviagateTo(PlayScreen.path, context),
+            provider.selectWord(1),
+            () {
+              final level = provider.currentlevel;
+              Navigator.of(context).pushNamed(SingleLevelScreen.path,
+                  arguments: {'level': level});
+            },
             width: 320,
           ),
           buttonWithIcon(
-            'Levels',
+            provider.selectWord(2),
             () => naviagateTo(LevelsScreen.path, context),
           ),
           buttonBuilder(
-            'More Challenges',
+            provider.selectWord(3),
             () => naviagateTo(ChallengesScreen.path, context),
           ),
           if (!isLogin)
@@ -110,7 +119,7 @@ class MenuScreen extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                    child: buttonBuilder('connect with facebook', () {},
+                    child: buttonBuilder(provider.selectWord(4), () {},
                         width: 100, margin: 0, color: Colors.blue)),
               ]),
             )

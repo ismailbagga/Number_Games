@@ -64,6 +64,8 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
     // applyWith = route['apply with']!;
     // currentNumberInCenter = numberInCenter;
     super.initState();
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+    provider.setNewCurrentlevel(Levels.level_4);
   }
 
   @override

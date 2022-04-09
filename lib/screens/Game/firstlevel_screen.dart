@@ -30,6 +30,8 @@ class _LevelOneGameState extends State<LevelOneGame> {
   @override
   void initState() {
     super.initState();
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+    provider.setNewCurrentlevel(Levels.level_1);
   }
 
   @override
@@ -129,7 +131,7 @@ class _LevelOneGameState extends State<LevelOneGame> {
       });
       return;
     }
-    if (true) {
+    if (numberToLookFor == res) {
       final provider = Provider.of<AuthProvider>(context, listen: false);
       provider.increaseLevel(Levels.level_1, id);
       Navigator.of(context)
@@ -193,8 +195,10 @@ class _LevelOneGameState extends State<LevelOneGame> {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
+    // Provider.of<AuthProvider>(context, listen: false)
+    //     .setNewCurrentlevel(Levels.level_1);
     return Scaffold(
-      backgroundColor: Colors.amberAccent,
+      backgroundColor: Color.fromARGB(255, 64, 255, 156),
       body: Center(
         child: Container(
           width: media.size.width * 0.9,

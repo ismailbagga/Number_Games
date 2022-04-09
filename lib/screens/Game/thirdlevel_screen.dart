@@ -42,6 +42,8 @@ class _ThirdLevelGameState extends State<ThirdLevelGame> {
     // applyWith = route['apply with']!;
     // currentNumberInCenter = numberInCenter;
     super.initState();
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+    provider.setNewCurrentlevel(Levels.level_3);
   }
 
   @override
@@ -150,7 +152,7 @@ class _ThirdLevelGameState extends State<ThirdLevelGame> {
       return;
     }
     if (res == numberToLookFor) {
-      final provider = Provider.of<AuthProvider>(context);
+      final provider = Provider.of<AuthProvider>(context, listen: false);
       provider.increaseLevel(Levels.level_3, id);
 
       Navigator.of(context)
@@ -215,6 +217,7 @@ class _ThirdLevelGameState extends State<ThirdLevelGame> {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
+
     // final route = (ModalRoute.of(context)?.settings.arguments
     //     as Map<String, Map<String, int>>)['item'];
     // numberInCenter = route!['start with']!;

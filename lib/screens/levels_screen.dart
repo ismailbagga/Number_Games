@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:number_game/models/Levels.dart';
+import 'package:number_game/providers/AuthProvider.dart';
 import 'package:number_game/screens/SingleLevel_screen.dart';
+import 'package:provider/provider.dart';
 
 class LevelsScreen extends StatelessWidget {
   static const String path = '/LevelsScreen';
@@ -55,29 +57,34 @@ class LevelsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final query = MediaQuery.of(context);
+    final provider = Provider.of<AuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Levels'),
+        title: Text(
+          provider.selectWord(2),
+          style: TextStyle(fontSize: 32),
+        ),
       ),
       body: Container(
         padding: EdgeInsets.only(top: query.padding.top + 10),
         color: const Color.fromARGB(255, 15, 255, 67),
         child: Center(
           child: Column(children: [
-            buildLevelButton('Level 1', Colors.amberAccent, () {
+            buildLevelButton(provider.selectWord(5), Colors.amberAccent, () {
               Navigator.of(context).pushNamed(SingleLevelScreen.path,
                   arguments: {'level': Levels.level_1});
             }),
-            buildLevelButton('Level 2', Colors.black, () {
+            buildLevelButton(provider.selectWord(6), Colors.black, () {
               Navigator.of(context).pushNamed(SingleLevelScreen.path,
                   arguments: {'level': Levels.level_2});
             }),
-            buildLevelButton('Level 3', Colors.blue, () {
+            buildLevelButton(provider.selectWord(8), Colors.blue, () {
               Navigator.of(context).pushNamed(SingleLevelScreen.path,
                   arguments: {'level': Levels.level_3});
             }),
-            buildLevelButton('Level 4', Color.fromARGB(255, 66, 5, 144), () {
+            buildLevelButton(
+                provider.selectWord(7), Color.fromARGB(255, 66, 5, 144), () {
               Navigator.of(context).pushNamed(SingleLevelScreen.path,
                   arguments: {'level': Levels.level_4});
             }),

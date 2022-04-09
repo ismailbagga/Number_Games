@@ -12,17 +12,15 @@ class SingleLevelScreen extends StatelessWidget {
   static const String path = '/SingleScreen';
 
   const SingleLevelScreen({Key? key}) : super(key: key);
-  String pageLevel(Levels level) {
+  int pageLevel(Levels level) {
     if (level == Levels.level_1) {
-      return "Level 1 ";
+      return 5;
     } else if (level == Levels.level_2) {
-      return 'Level 2';
+      return 6;
     } else if (level == Levels.level_3) {
-      return 'Level 3';
-    } else if (level == Levels.level_4) {
-      return 'Level 4';
+      return 8;
     } else {
-      return "No Level Specified";
+      return 7;
     }
   }
 
@@ -84,10 +82,15 @@ class SingleLevelScreen extends StatelessWidget {
         as Map<String, Object>)['level'] as Levels;
     final completedGames = provider.retrieveCompletedLevels();
     List<Map<String, int>> games = provider.getGames(level);
-    final title = pageLevel(level);
 
     return Scaffold(
-        appBar: AppBar(title: Text(title)),
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(
+            provider.selectWord(pageLevel(level)),
+            style: TextStyle(fontSize: 32),
+          ),
+        ),
         backgroundColor: const Color.fromARGB(255, 39, 106, 215),
         body: Center(
           child: Container(
