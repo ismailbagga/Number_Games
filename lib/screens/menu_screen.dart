@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 class MenuScreen extends StatelessWidget {
   static const path = "/menu";
   void naviagateTo(String path, BuildContext context) {
-    print('Navigate');
     Navigator.of(context).pushNamed(path);
   }
 
@@ -63,7 +62,7 @@ class MenuScreen extends StatelessWidget {
     bool isLogin = provider.isUserLoggedIn();
 
     final query = MediaQuery.of(context).size;
-    print('called from build');
+
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 3, 48, 50),
       body: Center(
@@ -119,7 +118,8 @@ class MenuScreen extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                    child: buttonBuilder(provider.selectWord(4), () {},
+                    child: buttonBuilder(
+                        provider.selectWord(4), provider.signIn,
                         width: 100, margin: 0, color: Colors.blue)),
               ]),
             )

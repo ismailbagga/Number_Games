@@ -20,7 +20,7 @@ class LevelOneGame extends StatefulWidget {
 class _LevelOneGameState extends State<LevelOneGame> {
   int id = 0;
   bool disable = false;
-
+  Timer? timer;
   var numberInCenter = 0;
   var numberToLookFor = 0;
   var applyWith = 0;
@@ -32,6 +32,14 @@ class _LevelOneGameState extends State<LevelOneGame> {
     super.initState();
     final provider = Provider.of<AuthProvider>(context, listen: false);
     provider.setNewCurrentlevel(Levels.level_1);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (timer != null) {
+      timer?.cancel();
+    }
   }
 
   @override
@@ -103,7 +111,7 @@ class _LevelOneGameState extends State<LevelOneGame> {
   void operateOn(Operation op) {
     if (disable) return;
     double res = double.parse(currentNumberInCenter);
-    // print(completeOperations);
+
     if (op == Operation.plus && completeOperations[0] == false) {
       res = res + applyWith;
       completeOperations[0] = true;
@@ -136,7 +144,6 @@ class _LevelOneGameState extends State<LevelOneGame> {
       provider.increaseLevel(Levels.level_1, id);
       Navigator.of(context)
           .pushNamed(WinScreen.path, arguments: {'level': id}).then((value) {
-        // print(value);
         bool isRetry = value as bool;
 
         if (isRetry == true) {
@@ -154,7 +161,7 @@ class _LevelOneGameState extends State<LevelOneGame> {
     }
     disable = true;
     showModal("all operation are consumed try agin");
-    Timer(const Duration(seconds: 2), () {
+    timer = Timer(const Duration(seconds: 2), () {
       res = numberInCenter.toDouble();
       completeOperations = List.generate(4, (_) => false);
       setState(() {
@@ -210,13 +217,15 @@ class _LevelOneGameState extends State<LevelOneGame> {
             const SizedBox(
               height: 50,
             ),
-            arithmaticBtn(
-                '+', applyWith, () => operateOn(Operation.plus), 0, -15),
+            arithmaticBtn('+', applyWith, () {
+              operateOn(Operation.plus);
+            }, 0, -15),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                arithmaticBtn('/', applyWith,
-                    () => operateOn(Operation.division), -35, 18),
+                arithmaticBtn('/', applyWith, () {
+                  operateOn(Operation.division);
+                }, -35, 18),
                 Container(
                   width: 70,
                   height: 70,
@@ -228,12 +237,14 @@ class _LevelOneGameState extends State<LevelOneGame> {
                     ),
                   ),
                 ),
-                arithmaticBtn('*', applyWith,
-                    () => operateOn(Operation.multplication), 35, 18),
+                arithmaticBtn('*', applyWith, () {
+                  operateOn(Operation.multplication);
+                }, 35, 18),
               ],
             ),
-            arithmaticBtn(
-                '-', applyWith, () => operateOn(Operation.minus), 0, 60),
+            arithmaticBtn('-', applyWith, () {
+              operateOn(Operation.minus);
+            }, 0, 60),
           ]),
         ),
       ),

@@ -22,7 +22,7 @@ class ThirdLevelGame extends StatefulWidget {
 class _ThirdLevelGameState extends State<ThirdLevelGame> {
   int id = 0;
   bool disable = false;
-
+  Timer? timer;
   var numberInCenter = 0;
   var numberToLookFor = 0;
   int plus = 0;
@@ -47,15 +47,21 @@ class _ThirdLevelGameState extends State<ThirdLevelGame> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    if (timer != null) {
+      timer?.cancel();
+    }
+  }
+
+  @override
   void didChangeDependencies() {
-    print(completeOperations);
     if (isVisited) return;
     final route = (ModalRoute.of(context)?.settings.arguments
         as Map<String, Map<String, int>>)['item'];
-    print(route);
+
     id = route!['id'] as int;
-    print(id);
-    print(route);
+
     numberInCenter = route['startWith']!;
     numberToLookFor = route['lookFor']!;
     plus = route['plus']!;
@@ -63,7 +69,7 @@ class _ThirdLevelGameState extends State<ThirdLevelGame> {
     mult = route['multp']!;
     div = route['div']!;
     currentNumberInCenter = numberInCenter.toString();
-    print('in state life cycle $numberInCenter');
+
     isVisited = true;
     super.didChangeDependencies();
   }
@@ -176,7 +182,7 @@ class _ThirdLevelGameState extends State<ThirdLevelGame> {
     }
     disable = true;
     showModal("all operation are consumed try agin");
-    Timer(const Duration(seconds: 2), () {
+    timer = Timer(const Duration(seconds: 2), () {
       res = numberInCenter.toDouble();
       completeOperations = List.generate(4, (_) => false);
       setState(() {
@@ -237,12 +243,15 @@ class _ThirdLevelGameState extends State<ThirdLevelGame> {
             const SizedBox(
               height: 50,
             ),
-            arithmaticBtn('+', plus, () => operateOn(Operation.plus), 0, -15),
+            arithmaticBtn('+', plus, () {
+              operateOn(Operation.plus);
+            }, 0, -15),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                arithmaticBtn(
-                    '/', div, () => operateOn(Operation.division), -35, 18),
+                arithmaticBtn('/', div, () {
+                  operateOn(Operation.division);
+                }, -35, 18),
                 Container(
                   width: 70,
                   height: 70,
@@ -254,11 +263,14 @@ class _ThirdLevelGameState extends State<ThirdLevelGame> {
                     ),
                   ),
                 ),
-                arithmaticBtn('*', mult,
-                    () => operateOn(Operation.multplication), 35, 18),
+                arithmaticBtn('*', mult, () {
+                  operateOn(Operation.multplication);
+                }, 35, 18),
               ],
             ),
-            arithmaticBtn('-', minus, () => operateOn(Operation.minus), 0, 60),
+            arithmaticBtn('-', minus, () {
+              operateOn(Operation.minus);
+            }, 0, 60),
           ]),
         ),
       ),

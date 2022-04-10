@@ -76,7 +76,6 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
 
     id = route!['id'] as int;
 
-    print('data i get $route');
     numberInCenter = route['startWith']!;
     numberToLookFor = route['lookFor']!;
 
@@ -187,7 +186,7 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
   void operateOn(Operation op) {
     if (disable) return;
     double res = double.parse(currentNumberInCenter);
-    // print(completeOperations);
+
     if (op == Operation.plus && completeOperations[0] == false) {
       res = res + plus;
       completeOperations[0] = true;
@@ -221,7 +220,6 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
 
       Navigator.of(context)
           .pushNamed(WinScreen.path, arguments: {'level': id}).then((value) {
-        // print(value);
         bool isRetry = value as bool;
 
         if (isRetry == true) {
@@ -335,7 +333,6 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               ...stateOfDrag.map((item) {
-                print(item);
                 int num = item['num'] as int;
                 return Draggable<Map>(
                   data: item,

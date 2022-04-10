@@ -63,7 +63,7 @@ class LevelsScreen extends StatelessWidget {
         centerTitle: true,
         title: Text(
           provider.selectWord(2),
-          style: TextStyle(fontSize: 32),
+          style: const TextStyle(fontSize: 32),
         ),
       ),
       body: Container(

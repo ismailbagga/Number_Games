@@ -21,7 +21,7 @@ class SecondLevelGame extends StatefulWidget {
 class _SecondLevelGameState extends State<SecondLevelGame> {
   int id = 0;
   bool disable = false;
-
+  Timer? timer;
   var numberInCenter = 0;
   var numberToLookFor = 0;
   int plusOrMinus = 0;
@@ -42,6 +42,14 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
     super.initState();
     final provider = Provider.of<AuthProvider>(context, listen: false);
     provider.setNewCurrentlevel(Levels.level_2);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (timer != null) {
+      timer?.cancel();
+    }
   }
 
   @override
@@ -171,7 +179,7 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
     }
     disable = true;
     showModal("all operation are consumed try agin");
-    Timer(const Duration(seconds: 2), () {
+    timer = Timer(const Duration(seconds: 2), () {
       res = numberInCenter.toDouble();
       completeOperations = List.generate(4, (_) => false);
       setState(() {

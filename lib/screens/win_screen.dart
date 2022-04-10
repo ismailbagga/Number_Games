@@ -47,7 +47,6 @@ class WinScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                print('more games');
                 Navigator.of(context).pop(false);
               },
               child: const Text('More Games'),

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 // import 'package:excel/excel.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:number_game/models/GameQuestion.dart';
 import 'package:number_game/models/Levels.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,6 +48,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   bool _login = false;
+  AccessToken? accessToken;
   int? userId;
   String selectedLanguage = 'Arabic';
   Map<String, Map<int, String>> languages = {};
@@ -177,6 +179,20 @@ class AuthProvider with ChangeNotifier {
       return [...levels[3]];
     } else {
       return [];
+    }
+  }
+
+  void signIn() async {
+    print('called');
+    final LoginResult result = await FacebookAuth.i
+        .login(permissions: ['email', 'public_profile', 'user_friends']);
+    if (result.status == LoginStatus.success) {
+      accessToken = result.accessToken;
+      final data = await FacebookAuth.i.getUserData(fields: 'friends');
+      print(data);
+      // Save User in Server with his friends ;
+      // print(data['email']);
+      // print(data['friends']);
     }
   }
 }
