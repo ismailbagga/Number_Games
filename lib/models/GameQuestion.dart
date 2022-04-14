@@ -46,7 +46,7 @@ class GameQuestion2 {
 
   GameQuestion2(this.plusMinusBase, this.multpDivBase, this.numberInCenter,
       this.numberToLookFor);
-  static List<Map<String, int>> getLevel1Questions() {
+  static List<Map<String, int>> getLevel2Questions() {
     return [
       {
         'id': 21,
@@ -202,7 +202,7 @@ class GameQuestion3 {
 
   GameQuestion3(this.plusBase, this.minusBase, this.multBase, this.divBase,
       this.numberInCenter, this.numberToLookFor);
-  static List<Map<String, int>> getLevel1Questions() {
+  static List<Map<String, int>> getLevel3Questions() {
     return [
       {
         'id': 41,
@@ -377,6 +377,202 @@ class GameQuestion3 {
       },
       {
         'id': 60,
+        'lookFor': -2788,
+        'plus': 39,
+        'minus': 42,
+        'multp': 68,
+        'div': 54,
+        'startWith': 15
+      }
+    ];
+  }
+}
+
+class GameQuestion4 {
+  int numberInCenter;
+  int plusBase;
+  int minusBase;
+  int multBase;
+  int divBase;
+  int numberToLookFor;
+
+  GameQuestion4(this.plusBase, this.minusBase, this.multBase, this.divBase,
+      this.numberInCenter, this.numberToLookFor);
+  static List<Map<String, int>> getLevel4Questions() {
+    return [
+      {
+        'id': 61,
+        'lookFor': 21,
+        'plus': 14,
+        'minus': 2,
+        'multp': 7,
+        'div': 3,
+        'startWith': 5
+      },
+      {
+        'id': 62,
+        'lookFor': 25,
+        'plus': 18,
+        'minus': 20,
+        'multp': 17,
+        'div': 19,
+        'startWith': 9
+      },
+      {
+        'id': 63,
+        'lookFor': 15,
+        'plus': 38,
+        'minus': 30,
+        'multp': 37,
+        'div': 40,
+        'startWith': 16
+      },
+      {
+        'id': 64,
+        'lookFor': 61,
+        'plus': 133,
+        'minus': 126,
+        'multp': 122,
+        'div': 130,
+        'startWith': 58
+      },
+      {
+        'id': 65,
+        'lookFor': 0,
+        'plus': 22,
+        'minus': 30,
+        'multp': 10,
+        'div': 36,
+        'startWith': 8
+      },
+      {
+        'id': 66,
+        'lookFor': 38,
+        'plus': 34,
+        'minus': 48,
+        'multp': 52,
+        'div': 17,
+        'startWith': 17
+      },
+      {
+        'id': 67,
+        'lookFor': 39,
+        'plus': 53,
+        'minus': 57,
+        'multp': 65,
+        'div': 35,
+        'startWith': 25
+      },
+      {
+        'id': 68,
+        'lookFor': 12,
+        'plus': 51,
+        'minus': 68,
+        'multp': 54,
+        'div': 63,
+        'startWith': 31
+      },
+      {
+        'id': 69,
+        'lookFor': -75,
+        'plus': 84,
+        'minus': 111,
+        'multp': 114,
+        'div': 110,
+        'startWith': 34
+      },
+      {
+        'id': 70,
+        'lookFor': 51,
+        'plus': 94,
+        'minus': 93,
+        'multp': 102,
+        'div': 96,
+        'startWith': 47
+      },
+      {
+        'id': 71,
+        'lookFor': -94,
+        'plus': 136,
+        'minus': 149,
+        'multp': 171,
+        'div': 155,
+        'startWith': 63
+      },
+      {
+        'id': 72,
+        'lookFor': -26,
+        'plus': 30,
+        'minus': 37,
+        'multp': 51,
+        'div': 42,
+        'startWith': 15
+      },
+      {
+        'id': 73,
+        'lookFor': 32,
+        'plus': 50,
+        'minus': 65,
+        'multp': 61,
+        'div': 51,
+        'startWith': 27
+      },
+      {
+        'id': 74,
+        'lookFor': 93,
+        'plus': 79,
+        'minus': 68,
+        'multp': 61,
+        'div': 91,
+        'startWith': 22
+      },
+      {
+        'id': 75,
+        'lookFor': 20,
+        'plus': 120,
+        'minus': 124,
+        'multp': 100,
+        'div': 90,
+        'startWith': 34
+      },
+      {
+        'id': 76,
+        'lookFor': 84,
+        'plus': 128,
+        'minus': 111,
+        'multp': 144,
+        'div': 108,
+        'startWith': 46
+      },
+      {
+        'id': 77,
+        'lookFor': 207,
+        'plus': 161,
+        'minus': 152,
+        'multp': 140,
+        'div': 144,
+        'startWith': 53
+      },
+      {
+        'id': 78,
+        'lookFor': 47,
+        'plus': 42,
+        'minus': 33,
+        'multp': 38,
+        'div': 15,
+        'startWith': 15
+      },
+      {
+        'id': 79,
+        'lookFor': -21,
+        'plus': 63,
+        'minus': 48,
+        'multp': 57,
+        'div': 73,
+        'startWith': 20
+      },
+      {
+        'id': 80,
         'lookFor': -2788,
         'plus': 39,
         'minus': 42,

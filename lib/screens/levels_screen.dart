@@ -61,6 +61,7 @@ class LevelsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Color.fromARGB(255, 134, 3, 186),
         title: Text(
           provider.selectWord(2),
           style: const TextStyle(fontSize: 32),
@@ -68,7 +69,7 @@ class LevelsScreen extends StatelessWidget {
       ),
       body: Container(
         padding: EdgeInsets.only(top: query.padding.top + 10),
-        color: const Color.fromARGB(255, 15, 255, 67),
+        color: const Color.fromARGB(255, 16, 7, 25),
         child: Center(
           child: Column(children: [
             buildLevelButton(provider.selectWord(5), Colors.amberAccent, () {

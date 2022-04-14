@@ -54,6 +54,7 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
   var applyWith = 0;
   String currentNumberInCenter = "0";
   bool isVisited = false;
+  Timer? timer;
   List<bool> completeOperations = List.generate(4, (index) => false);
   @override
   void initState() {
@@ -66,6 +67,14 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
     super.initState();
     final provider = Provider.of<AuthProvider>(context, listen: false);
     provider.setNewCurrentlevel(Levels.level_4);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (timer != null) {
+      timer!.cancel();
+    }
   }
 
   @override
@@ -205,10 +214,12 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
     setState(() {
       currentNumberInCenter = res.toString();
     });
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+
     if (res % 1 != 0) {
       disable = true;
-      showModal('Ops you got decimal value try agin');
-      Timer(const Duration(seconds: 2), () {
+      showModal(provider.selectWord(19));
+      timer = Timer(const Duration(seconds: 2), () {
         reset();
         disable = false;
       });
@@ -236,8 +247,8 @@ class _ThirdLevelGameState extends State<FourthLevelGame> {
       }
     }
     disable = true;
-    showModal("all operation are consumed try agin");
-    Timer(const Duration(seconds: 2), () {
+    showModal(provider.selectWord(16));
+    timer = Timer(const Duration(seconds: 2), () {
       res = numberInCenter.toDouble();
       completeOperations = List.generate(4, (_) => false);
       stateOfDrag.forEach((element) => element['draged'] = false);

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+<string name="facebook_app_id">1393071044485181</string>
+<string name="fb_login_protocol_scheme">fb1234</string>
+<string name="facebook_client_token">5670dadf17f982500ddbca1aa651a123</string>
+<string name="app_name">Flutter Numbers Game</string>
+
+</resources>

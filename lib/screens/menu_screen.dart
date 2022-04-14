@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:number_game/models/Levels.dart';
 import 'package:number_game/providers/AuthProvider.dart';
@@ -8,10 +9,28 @@ import 'package:number_game/screens/levels_screen.dart';
 import 'package:number_game/screens/play_screen.dart';
 import 'package:provider/provider.dart';
 
-class MenuScreen extends StatelessWidget {
+class MenuScreen extends StatefulWidget {
   static const path = "/menu";
+
+  @override
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  bool isVisited = false;
+  String? selectedItem;
+
   void naviagateTo(String path, BuildContext context) {
     Navigator.of(context).pushNamed(path);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (isVisited) return;
+    selectedItem =
+        Provider.of<AuthProvider>(context, listen: false).getSelectedLanguage();
+    isVisited = true;
   }
 
   Widget buttonBuilder(String text, VoidCallback onClick,
@@ -56,15 +75,28 @@ class MenuScreen extends StatelessWidget {
     );
   }
 
+  void dropDownCallBack(String? item) {
+    setState(() {
+      if (item is String) {
+        selectedItem = item;
+        Provider.of<AuthProvider>(context, listen: false)
+            .setDisplaylanguage(item);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<AuthProvider>(context);
+    final provider = Provider.of<AuthProvider>(context, listen: true);
+    print(FacebookAuth.i.getUserData());
+
+    print("langauge changes to ${provider.selectedLanguage}");
     bool isLogin = provider.isUserLoggedIn();
 
     final query = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 3, 48, 50),
+      backgroundColor: const Color.fromARGB(255, 3, 48, 50),
       body: Center(
         child: Column(children: [
           Container(
@@ -122,7 +154,56 @@ class MenuScreen extends StatelessWidget {
                         provider.selectWord(4), provider.signIn,
                         width: 100, margin: 0, color: Colors.blue)),
               ]),
-            )
+            ),
+          Container(
+            margin: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            color: Color.fromARGB(255, 26, 153, 195),
+            width: query.width * 0.5,
+            child: DropdownButton(
+              iconSize: 55,
+              isExpanded: true,
+              value: provider.getSelectedLanguage(),
+              items: const [
+                DropdownMenuItem(
+                  child: Text(
+                    'English',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  value: "English",
+                ),
+                DropdownMenuItem(
+                  child: Text('Francais'),
+                  value: "Francais",
+                ),
+                DropdownMenuItem(
+                  child: Text('Arabic'),
+                  value: "Arabic",
+                ),
+                DropdownMenuItem(
+                  child: Text('Dutch'),
+                  value: "Detche",
+                ),
+                DropdownMenuItem(
+                  child: Text('Spanish'),
+                  value: "Spanish",
+                ),
+                DropdownMenuItem(
+                  child: Text('italian'),
+                  value: "italian",
+                ),
+                // DropdownMenuItem(
+                //   child: Text('English'),
+                //   value: "English",
+                // ),
+                // DropdownMenuItem(
+                //   child: Text('English'),
+                //   value: "English",
+                // ),
+              ],
+              onChanged: dropDownCallBack,
+            ),
+          )
         ]),
       ),
     );

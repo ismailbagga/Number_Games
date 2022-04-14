@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:number_game/providers/AuthProvider.dart';
+import 'package:number_game/screens/ChallengeResult_screen.dart';
+import 'package:number_game/screens/Game/ChallengeMode.dart';
 import 'package:number_game/screens/Game/firstlevel_screen.dart';
 import 'package:number_game/screens/Game/fourthlevel_screen.dart';
 import 'package:number_game/screens/Game/pause_screen.dart';
@@ -11,6 +13,7 @@ import 'package:number_game/screens/Game/thirdlevel_screen.dart';
 import 'package:number_game/screens/SingleLevel_screen.dart';
 import 'package:number_game/screens/challenges_screen.dart';
 import 'package:number_game/screens/levels_screen.dart';
+import 'package:number_game/screens/lost_screen.dart';
 import 'package:number_game/screens/menu_screen.dart';
 import 'package:number_game/screens/play_screen.dart';
 import 'package:number_game/screens/win_screen.dart';
@@ -55,6 +58,9 @@ class MyApp extends StatelessWidget {
           FourthLevelGame.path: (context) => FourthLevelGame(),
           WinScreen.path: (context) => WinScreen(),
           PauseScreen.path: (context) => PauseScreen(),
+          ChallengeModeGame.path: (context) => ChallengeModeGame(),
+          ChallengeResultScreen.path: (context) => ChallengeResultScreen(),
+          LostScreen.path: (context) => LostScreen(),
         },
       ),
     );

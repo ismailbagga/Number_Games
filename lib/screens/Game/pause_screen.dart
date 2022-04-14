@@ -29,7 +29,7 @@ class PauseScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final query = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 21, 31, 5),
+      backgroundColor: const Color.fromARGB(255, 98, 92, 168),
       body: Center(
         child: Column(children: [
           Container(

@@ -145,28 +145,27 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
     setState(() {
       currentNumberInCenter = res.toString();
     });
+    final provider = Provider.of<AuthProvider>(context, listen: false);
     if (res % 1 != 0) {
       disable = true;
-      showModal('Ops you got decimal value try agin');
-      Timer(const Duration(seconds: 2), () {
+      showModal(provider.selectWord(19));
+      timer = Timer(const Duration(seconds: 2), () {
         reset();
         disable = false;
       });
       return;
     }
+
     if (res == numberToLookFor) {
-      final provider = Provider.of<AuthProvider>(context, listen: false);
       provider.increaseLevel(Levels.level_2, id);
 
       Navigator.of(context)
           .pushNamed(WinScreen.path, arguments: {'level': id}).then((value) {
-        // print(value);
         bool isRetry = value as bool;
-        print('re try');
+
         if (isRetry == true) {
           reset();
         } else {
-          print('lets pop');
           Navigator.of(context).pop(context);
         }
       });
@@ -178,7 +177,7 @@ class _SecondLevelGameState extends State<SecondLevelGame> {
       }
     }
     disable = true;
-    showModal("all operation are consumed try agin");
+    showModal(provider.selectWord(16));
     timer = Timer(const Duration(seconds: 2), () {
       res = numberInCenter.toDouble();
       completeOperations = List.generate(4, (_) => false);

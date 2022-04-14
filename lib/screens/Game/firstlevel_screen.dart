@@ -130,10 +130,11 @@ class _LevelOneGameState extends State<LevelOneGame> {
     setState(() {
       currentNumberInCenter = res.toString();
     });
+    final provider = Provider.of<AuthProvider>(context, listen: false);
     if (res % 1 != 0) {
       disable = true;
-      showModal('Ops you got decimal value try agin');
-      Timer(const Duration(seconds: 2), () {
+      showModal(provider.selectWord(19));
+      timer = Timer(const Duration(seconds: 2), () {
         reset();
         disable = false;
       });
@@ -160,7 +161,7 @@ class _LevelOneGameState extends State<LevelOneGame> {
       }
     }
     disable = true;
-    showModal("all operation are consumed try agin");
+    showModal(provider.selectWord(16));
     timer = Timer(const Duration(seconds: 2), () {
       res = numberInCenter.toDouble();
       completeOperations = List.generate(4, (_) => false);

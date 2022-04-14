@@ -3,38 +3,47 @@ import 'dart:convert';
 // import 'package:excel/excel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:http/http.dart';
 import 'package:number_game/models/GameQuestion.dart';
 import 'package:number_game/models/Levels.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:excel/excel.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 
 // import 'package:flutter/services.dart' show ByteData, rootBundle;
-
-class AuthProvider with ChangeNotifier {
-  Levels currentlevel = Levels.level_1;
-  void setNewCurrentlevel(Levels level) {
-    currentlevel = level;
-    SharedPreferences.getInstance().then((value) {
-      value.setInt("Current_Level", convertlLevelEnumToInt(level));
-    });
-  }
-
-  int convertlLevelEnumToInt(Levels level) {
-    if (level == Levels.level_1) {
-      return 1;
-    } else if (level == Levels.level_2) {
-      return 2;
-    } else if (level == Levels.level_3) {
-      return 3;
-    } else {
-      return 4;
+class User {
+  String email;
+  Map token;
+  String name;
+  Map<String, int>? personalBest;
+  User(this.email, this.token, this.name, {this.personalBest});
+  User.fromJson(Map<String, dynamic> json)
+      : email = json['email'],
+        token = json['token'],
+        name = json['name'] {
+    if (json['personalBest'] != null) {
+      personalBest = json['personalBest'];
     }
   }
 
+  Map toJson() {
+    return {
+      'email': email,
+      'token': token,
+      'personlBest': personalBest,
+      'name': name
+    };
+  }
+}
+
+class AuthProvider with ChangeNotifier {
+  Levels currentlevel = Levels.level_1;
+  User? user;
+
+  Map<String, int>? personalBest;
   Levels convertlIntToLevel(int level) {
     if (level == 1) {
       return Levels.level_1;
@@ -47,12 +56,38 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  bool _login = false;
   AccessToken? accessToken;
   int? userId;
-  String selectedLanguage = 'Arabic';
+  String selectedLanguage = 'English';
   Map<String, Map<int, String>> languages = {};
   // {gameId:0,userId:null,}
+  AuthProvider() {
+    SharedPreferences.getInstance().then((storage) {
+      storage.clear();
+
+      if (storage.containsKey('Current_Level')) {
+        currentlevel = convertlIntToLevel(storage.getInt('Current_Level')!);
+      }
+      if (storage.containsKey('personal_best')) {
+        final temp = json.decode(storage.getString('personal_best')!)
+            as Map<String, dynamic>;
+        personalBest = {
+          'min': temp['min'] as int,
+          's': temp['s'] as int,
+        };
+      }
+      if (storage.containsKey('user')) {
+        final temp = json.decode(storage.getString('user')!);
+        temp['token'] = temp['token'];
+        user = User.fromJson(temp);
+        print("user existe as $temp");
+      } else {
+        print('user did not found');
+      }
+      setAvailablLanguage();
+    });
+    retrieveAppData();
+  }
   Future<void> retrieveAppData() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey("availableGames")) return;
@@ -86,22 +121,48 @@ class AuthProvider with ChangeNotifier {
         }
       }
     }
-    // SharedPreferences.getInstance().then((value) {
-    //   value.setString('langauges', json.encode(languages));
-    // });
 
+    SharedPreferences.getInstance().then((value) {
+      if (value.containsKey('current_lang')) {
+        selectedLanguage = value.getString("current_lang")!;
+      } else {
+        // selectedLanguage = "Arabic";
+      }
+      notifyListeners();
+    });
+  }
+
+  String getSelectedLanguage() {
+    return selectedLanguage;
+  }
+
+  void setDisplaylanguage(String lang) {
+    selectedLanguage = lang;
+    SharedPreferences.getInstance().then((value) {
+      value.setString('current_lang', lang);
+    });
     notifyListeners();
   }
 
-  AuthProvider() {
+  void setNewCurrentlevel(Levels level) {
+    currentlevel = level;
     SharedPreferences.getInstance().then((value) {
-      if (value.containsKey('Current_Level')) {
-        currentlevel = convertlIntToLevel(value.getInt('Current_Level')!);
-      }
+      value.setInt("Current_Level", convertlLevelEnumToInt(level));
     });
-    retrieveAppData();
-    setAvailablLanguage();
   }
+
+  int convertlLevelEnumToInt(Levels level) {
+    if (level == Levels.level_1) {
+      return 1;
+    } else if (level == Levels.level_2) {
+      return 2;
+    } else if (level == Levels.level_3) {
+      return 3;
+    } else {
+      return 4;
+    }
+  }
+
   void setNewLanguage(String language) {
     selectedLanguage = language;
   }
@@ -155,17 +216,39 @@ class AuthProvider with ChangeNotifier {
   // const List<GameQuestion> level1 = [];
   List<List<Map<String, int>>> levels = [
     GameQuestion1.getLevel1Questions(),
-    GameQuestion2.getLevel1Questions(),
-    GameQuestion3.getLevel1Questions(),
-    GameQuestion3.getLevel1Questions(),
+    GameQuestion2.getLevel2Questions(),
+    GameQuestion3.getLevel3Questions(),
+    GameQuestion4.getLevel4Questions(),
   ];
-  set setLoginState(bool state) {
-    _login = state;
-    notifyListeners();
+  Map<String, dynamic> getGameById(int id) {
+    Map<String, dynamic> map = {};
+    levels.forEach((level) {
+      level.forEach((game) {
+        if (game['id'] == id) {
+          map = {...game};
+          Levels level = Levels.level_1;
+          if (id > 20 && id < 41) {
+            level = Levels.level_2;
+          } else if (id > 40 && id < 61) {
+            level = Levels.level_3;
+          } else if (id > 60) {
+            level = Levels.level_4;
+          }
+          map['level'] = level;
+        }
+      });
+    });
+
+    return map;
   }
 
+  // void setLoginState(bool state) {
+  //   _login = state;
+  //   notifyListeners();
+  // }
+
   bool isUserLoggedIn() {
-    return _login;
+    return user != null;
   }
 
   List<Map<String, int>> getGames(Levels level) {
@@ -182,17 +265,169 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  void setNewChallengePersonalBest(Map<String, int> map) {
+    SharedPreferences.getInstance().then((value) {
+      value.setString('personal_record', json.encode(map));
+    });
+  }
+
   void signIn() async {
-    print('called');
     final LoginResult result = await FacebookAuth.i
         .login(permissions: ['email', 'public_profile', 'user_friends']);
     if (result.status == LoginStatus.success) {
       accessToken = result.accessToken;
-      final data = await FacebookAuth.i.getUserData(fields: 'friends');
-      print(data);
-      // Save User in Server with his friends ;
-      // print(data['email']);
-      // print(data['friends']);
+      final data =
+          await FacebookAuth.i.getUserData(fields: 'email,name,friends');
+      print('data $data');
+      if (!data.containsKey('email') || accessToken == null) return;
+      String email = data['email'];
+      Map? person = await findSinglePersonalBest(email);
+      if (person == null && personalBest == null) {
+        user = User(email, accessToken!.toJson(), data['name']);
+      }
+      // else if ( person != null && personalBest == null)
+
+      else {
+        Map<String, int> pb;
+        print(person);
+        if (personalBest == null && person != null) {
+          pb = {
+            'min': person['min'] as int,
+            's': person['s'] as int,
+          };
+        } else if (person == null && personalBest != null) {
+          pb = {
+            'min': personalBest!['min']!,
+            's': personalBest!['s']!,
+          };
+          submitPersonalBest(
+              {...personalBest!, 'name': data['name'], 'email': email});
+        } else {
+          int count1 = person!['min'] * 60 + person['s'];
+          int count2 = personalBest!['min']! * 60 + personalBest!['s']!;
+          if (count1 > count2) {
+            pb = {
+              'min': person['min'] as int,
+              's': person['min'] as int,
+            };
+          } else {
+            pb = personalBest!;
+            submitPersonalBest(
+                {...personalBest!, 'name': data['name'], 'email': email});
+          }
+          user = User(email, accessToken!.toJson(), data['name'],
+              personalBest: pb);
+        }
+      }
+      await SharedPreferences.getInstance().then((value) {
+        print(user);
+        value.setString('user', json.encode(user?.toJson()));
+
+        notifyListeners();
+      });
     }
+  }
+
+  void findPersonalBest(List<String> email) {}
+  Future<Map?> findSinglePersonalBest(String email) async {
+    final url = Uri.https('flutter-numbers-game.herokuapp.com',
+        '/api/v1/personalBest/friend', {"email": email});
+
+    try {
+      print(url.path);
+      final response = await http.get(url);
+      if (response.body == "") {
+        print('empty');
+        return null;
+      }
+
+      return json.decode(response.body);
+    } catch (error) {
+      rethrow;
+    }
+    // Map<String,int>
+  }
+
+  List<String> findFriendsList() {
+    return [];
+  }
+
+  String getBestResult() {
+    if (user != null && user!.personalBest != null) {
+      return '${user!.personalBest!['min']}:${personalBest!['s'] as int < 10 ? "0${personalBest!['s']}" : "${personalBest!['s']}"}';
+    }
+    if (personalBest != null) {
+      return '${personalBest!['min']}:${personalBest!['s'] as int < 10 ? "0${personalBest!['s']}" : "${personalBest!['s']}"}';
+    }
+    return languages[selectedLanguage]![14]!;
+  }
+
+  void saveUserLocaly() {
+    SharedPreferences.getInstance().then((value) {
+      value.setString('user', json.encode(user?.toJson()));
+      notifyListeners();
+    });
+  }
+
+  void submitPersonalBest(Map<String, dynamic> map) async {
+    final url = Uri.https(
+        'flutter-numbers-game.herokuapp.com', '/api/v1/personalBest/save');
+    try {
+      print('post body $map');
+      final response = await http.post(url,
+          headers: {
+            "content-type": "application/json",
+            "accept": "application/json",
+          },
+          body: json.encode(map));
+      print('requested sented ${response.body}');
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Map<String, int>? updatePersonalBest(Map<String, int> map) {
+    print("insiede update method $map ");
+    final perf = SharedPreferences.getInstance();
+    if (user == null) {
+      if (personalBest != null) {
+        int newc = map['min']! * 60 + map['s']!;
+        int oldc = personalBest!['min']! * 60 + personalBest!['s']!;
+        if (oldc > newc) {
+          return personalBest;
+        }
+      }
+      perf.then((storage) {
+        storage.setString('personal_best', json.encode(map));
+      });
+      personalBest = map;
+
+      return personalBest;
+    }
+
+    if (user?.personalBest == null) {
+      submitPersonalBest({...map, 'name': user?.name, 'email': user?.email});
+      user?.personalBest = map;
+      perf.then((storage) {
+        storage.setString('user', json.encode(user?.toJson()));
+        // notifyListeners();
+      });
+      print('user with no personal best ');
+      return personalBest;
+    }
+    int newtimeToSec = map['min']! * 60 + map['s']!;
+    int oldtimeToSec = (user?.personalBest!['min'] as int) * 60 +
+        (user?.personalBest!['s'] as int);
+    if (newtimeToSec > oldtimeToSec) {
+      submitPersonalBest({...map, 'name': user?.name, 'email': user?.email});
+      user?.personalBest = map;
+      perf.then((storage) {
+        storage.setString('user', json.encode(user?.toJson()));
+        // notifyListeners();
+      });
+
+      return personalBest;
+    }
+    return personalBest;
   }
 }
