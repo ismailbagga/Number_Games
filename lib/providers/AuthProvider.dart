@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 // import 'package:excel/excel.dart';
@@ -18,7 +19,7 @@ class User {
   String email;
   Map token;
   String name;
-  Map<String, int>? personalBest;
+  Map? personalBest;
   User(this.email, this.token, this.name, {this.personalBest});
   User.fromJson(Map<String, dynamic> json)
       : email = json['email'],
@@ -30,10 +31,11 @@ class User {
   }
 
   Map toJson() {
+    print('to json $personalBest');
     return {
       'email': email,
       'token': token,
-      'personlBest': personalBest,
+      'personalBest': personalBest,
       'name': name
     };
   }
@@ -43,7 +45,7 @@ class AuthProvider with ChangeNotifier {
   Levels currentlevel = Levels.level_1;
   User? user;
 
-  Map<String, int>? personalBest;
+  Map? personalBest;
   Levels convertlIntToLevel(int level) {
     if (level == 1) {
       return Levels.level_1;
@@ -80,7 +82,12 @@ class AuthProvider with ChangeNotifier {
         final temp = json.decode(storage.getString('user')!);
         temp['token'] = temp['token'];
         user = User.fromJson(temp);
-        print("user existe as $temp");
+        print('my user ${user?.toJson()}');
+        print('is personal best found ${user?.personalBest != null}');
+        if (user?.personalBest != null) {
+          personalBest = user?.personalBest;
+          print('personal best setted');
+        }
       } else {
         print('user did not found');
       }
@@ -175,10 +182,10 @@ class AuthProvider with ChangeNotifier {
   }
 
   List<dynamic> availableGames = [
-    {'gameId': 1, 'userId': null, 'completed': false},
-    {'gameId': 21, 'userId': null, 'completed': false},
-    {'gameId': 41, 'userId': null, 'completed': false},
-    {'gameId': 61, 'userId': null, 'completed': false}
+    {'gameId': 1, 'completed': false},
+    {'gameId': 21, 'completed': false},
+    {'gameId': 41, 'completed': false},
+    {'gameId': 61, 'completed': false}
   ];
   List<dynamic> retrieveCompletedLevels() {
     return [...availableGames];
@@ -203,8 +210,7 @@ class AuthProvider with ChangeNotifier {
       }
     }
     if (!found) {
-      availableGames
-          .add({'gameId': gameId, 'userId': userId, 'completed': true});
+      availableGames.add({'gameId': gameId, 'completed': true});
       SharedPreferences.getInstance().then((value) {
         final temp = json.encode(availableGames);
         value.setString('availableGames', temp);
@@ -271,7 +277,7 @@ class AuthProvider with ChangeNotifier {
     });
   }
 
-  void signIn() async {
+  Future<List<Map<String, dynamic>>> signIn() async {
     final LoginResult result = await FacebookAuth.i
         .login(permissions: ['email', 'public_profile', 'user_friends']);
     if (result.status == LoginStatus.success) {
@@ -279,9 +285,10 @@ class AuthProvider with ChangeNotifier {
       final data =
           await FacebookAuth.i.getUserData(fields: 'email,name,friends');
       print('data $data');
-      if (!data.containsKey('email') || accessToken == null) return;
+      if (!data.containsKey('email') || accessToken == null) return [];
       String email = data['email'];
       Map? person = await findSinglePersonalBest(email);
+
       if (person == null && personalBest == null) {
         user = User(email, accessToken!.toJson(), data['name']);
       }
@@ -297,8 +304,8 @@ class AuthProvider with ChangeNotifier {
           };
         } else if (person == null && personalBest != null) {
           pb = {
-            'min': personalBest!['min']!,
-            's': personalBest!['s']!,
+            'min': personalBest!['min']! as int,
+            's': personalBest!['s']! as int,
           };
           submitPersonalBest(
               {...personalBest!, 'name': data['name'], 'email': email});
@@ -308,24 +315,27 @@ class AuthProvider with ChangeNotifier {
           if (count1 > count2) {
             pb = {
               'min': person['min'] as int,
-              's': person['min'] as int,
+              's': person['s'] as int,
             };
           } else {
-            pb = personalBest!;
+            pb = personalBest! as Map<String, int>;
             submitPersonalBest(
                 {...personalBest!, 'name': data['name'], 'email': email});
           }
-          user = User(email, accessToken!.toJson(), data['name'],
-              personalBest: pb);
         }
+        user =
+            User(email, accessToken!.toJson(), data['name'], personalBest: pb);
       }
       await SharedPreferences.getInstance().then((value) {
-        print(user);
+        print('user is like this  $user');
         value.setString('user', json.encode(user?.toJson()));
 
         notifyListeners();
       });
+      print(data);
+      return [];
     }
+    return [];
   }
 
   void findPersonalBest(List<String> email) {}
@@ -348,13 +358,21 @@ class AuthProvider with ChangeNotifier {
     // Map<String,int>
   }
 
-  List<String> findFriendsList() {
+  Future<dynamic> findFriendsList() async {
+    final tempAccessToken = await FacebookAuth.instance.accessToken;
+    if (tempAccessToken != null) {
+      final response =
+          await FacebookAuth.instance.getUserData(fields: 'friends');
+      print('friends ${response["friends"]["data"]}');
+      return response['friends']['data'];
+    }
+    await Future.delayed(const Duration(seconds: 10));
     return [];
   }
 
   String getBestResult() {
     if (user != null && user!.personalBest != null) {
-      return '${user!.personalBest!['min']}:${personalBest!['s'] as int < 10 ? "0${personalBest!['s']}" : "${personalBest!['s']}"}';
+      return '${user!.personalBest!['min']}:${user!.personalBest!['s'] as int < 10 ? "0${user!.personalBest!['s']}" : "${user!.personalBest!['s']}"}';
     }
     if (personalBest != null) {
       return '${personalBest!['min']}:${personalBest!['s'] as int < 10 ? "0${personalBest!['s']}" : "${personalBest!['s']}"}';
@@ -386,11 +404,13 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Map<String, int>? updatePersonalBest(Map<String, int> map) {
-    print("insiede update method $map ");
+  Map? updatePersonalBest(Map<String, int> map) {
+    print("inside update method $map ");
     final perf = SharedPreferences.getInstance();
     if (user == null) {
+      print("no user founded");
       if (personalBest != null) {
+        print('no personal best found');
         int newc = map['min']! * 60 + map['s']!;
         int oldc = personalBest!['min']! * 60 + personalBest!['s']!;
         if (oldc > newc) {
@@ -409,16 +429,19 @@ class AuthProvider with ChangeNotifier {
       submitPersonalBest({...map, 'name': user?.name, 'email': user?.email});
       user?.personalBest = map;
       perf.then((storage) {
+        print('user going to get encoded ${user?.toJson()}');
         storage.setString('user', json.encode(user?.toJson()));
-        // notifyListeners();
+
+        // notifyListeners();+
       });
-      print('user with no personal best ');
-      return personalBest;
+      print('user with no personal best found');
+      return user?.personalBest;
     }
     int newtimeToSec = map['min']! * 60 + map['s']!;
     int oldtimeToSec = (user?.personalBest!['min'] as int) * 60 +
         (user?.personalBest!['s'] as int);
     if (newtimeToSec > oldtimeToSec) {
+      print('beat existing personal best ');
       submitPersonalBest({...map, 'name': user?.name, 'email': user?.email});
       user?.personalBest = map;
       perf.then((storage) {
@@ -426,8 +449,10 @@ class AuthProvider with ChangeNotifier {
         // notifyListeners();
       });
 
+      return map;
+    } else {
+      print("no condition was satisfiad");
       return personalBest;
     }
-    return personalBest;
   }
 }

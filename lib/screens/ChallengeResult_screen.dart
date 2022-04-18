@@ -12,7 +12,7 @@ class ChallengeResultScreen extends StatefulWidget {
 
 class _ChallengeResultScreenState extends State<ChallengeResultScreen> {
   Map<String, int>? route;
-  Map<String, int>? personalBest;
+  Map? personalBest;
   @override
   void initState() {
     super.initState();

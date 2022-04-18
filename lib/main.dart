@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         theme: ThemeData(
-          primarySwatch: Colors.amber,
+          primarySwatch: Colors.purple,
           // textTheme:
         ),
 

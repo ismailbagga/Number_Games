@@ -16,6 +16,11 @@ class ChallengesScreen extends StatefulWidget {
 }
 
 class _ChallengesScreenState extends State<ChallengesScreen> {
+  List<Map<String, dynamic>> friends = [];
+  bool checking = false;
+  @override
+  void initState() {}
+
   Widget friendResultWidget(int pos, Map<String, dynamic> map) {
     const style = TextStyle(
         color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold);
@@ -137,42 +142,50 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
                 ),
                 if (provider.isUserLoggedIn())
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        width: media.width * 0.9,
-                        color: blue,
-                        margin: const EdgeInsets.only(top: 30),
-                        child: Text(
-                          provider.selectWord(13),
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 18),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          width: media.width * 0.9,
+                          color: blue,
+                          margin: const EdgeInsets.only(top: 30),
+                          child: Text(
+                            provider.selectWord(13),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 18),
+                          ),
                         ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(top: 22),
-                        height: 220,
-                        // color: Colors.red,
-                        child: ListView(
-                          children: [
-                            friendResultWidget(
-                                1, {'name': 'mike stuffecr', 'time': '22:20'}),
-                            friendResultWidget(2, {
-                              'name': 'criss rdsqdqsdsqdsqd dqs dqsock',
-                              'time': '22:20'
-                            }),
-                            friendResultWidget(
-                                3, {'name': 'Jemmy', 'time': '22:20'}),
-                            friendResultWidget(
-                                4, {'name': 'Jemmy', 'time': '22:20'}),
-                            friendResultWidget(
-                                5, {'name': 'Jemmy', 'time': '22:20'}),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
+                        Container(
+                            margin: const EdgeInsets.only(top: 22),
+                            height: 220,
+                            // color: Colors.red,
+                            child: FutureBuilder(
+                                future: provider.findFriendsList(),
+                                builder: (ctx, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Container(
+                                      margin: const EdgeInsets.only(top: 50),
+                                      child: const Center(
+                                          child: CircularProgressIndicator()),
+                                    );
+                                  } else if (snapshot.error != null) {
+                                    return Container(
+                                        margin: const EdgeInsets.only(top: 50),
+                                        child: const Center(
+                                            child: Text("an Error Ocured")));
+                                  } else {
+                                    return ListView(
+                                      children: [
+                                        ...friends
+                                            .map(
+                                                (e) => friendResultWidget(1, e))
+                                            .toList(),
+                                      ],
+                                    );
+                                  }
+                                }))
+                      ]),
                 if (!provider.isUserLoggedIn())
                   Column(
                     children: [
@@ -185,7 +198,11 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
                                 fontSize: 22, color: Colors.white)),
                       ),
                       InkWell(
-                        onTap: provider.signIn,
+                        onTap: () {
+                          provider.signIn().then((friend) {
+                            print(friend);
+                          });
+                        },
                         child: Container(
                             width: media.width * 0.7,
                             // height: 120,

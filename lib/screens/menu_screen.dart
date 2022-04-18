@@ -88,7 +88,7 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<AuthProvider>(context, listen: true);
-    print(FacebookAuth.i.getUserData());
+    // print(FacebookAuth.i.getUserData());
 
     print("langauge changes to ${provider.selectedLanguage}");
     bool isLogin = provider.isUserLoggedIn();
