@@ -17,7 +17,8 @@ class LevelOneGame extends StatefulWidget {
   State<LevelOneGame> createState() => _LevelOneGameState();
 }
 
-class _LevelOneGameState extends State<LevelOneGame> {
+class _LevelOneGameState extends State<LevelOneGame>
+    with WidgetsBindingObserver {
   int id = 0;
   bool disable = false;
   Timer? timer;
@@ -29,14 +30,27 @@ class _LevelOneGameState extends State<LevelOneGame> {
   List<bool> completeOperations = List.generate(4, (index) => false);
   @override
   void initState() {
+    print('im in fi scrren');
+    WidgetsBinding.instance?.addObserver(this);
     super.initState();
     final provider = Provider.of<AuthProvider>(context, listen: false);
     provider.setNewCurrentlevel(Levels.level_1);
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    print(state);
+    if (state == AppLifecycleState.resumed) {
+      print('im paused right now');
+      pause();
+    }
+  }
+
+  @override
   void dispose() {
     super.dispose();
+    WidgetsBinding.instance?.removeObserver(this);
     if (timer != null) {
       timer?.cancel();
     }
@@ -56,7 +70,16 @@ class _LevelOneGameState extends State<LevelOneGame> {
     super.didChangeDependencies();
   }
 
-  void pause() {
+  void pause({onAppClose = false}) {
+    // if (onAppClose == true) {
+    //    Navigator.of(context).pushNamed(PauseScreen.path).then((value) {
+    //     String parameter = value as String;
+    //     if (parameter == 'q') {
+    //       Navigator.of(context).pop();
+    //     } else if (parameter == 'l') {}
+    //   });
+    //   return;
+    // }
     Navigator.of(context).pushNamed(PauseScreen.path).then((value) {
       String parameter = value as String;
       if (parameter == 'q') {
@@ -206,7 +229,7 @@ class _LevelOneGameState extends State<LevelOneGame> {
     // Provider.of<AuthProvider>(context, listen: false)
     //     .setNewCurrentlevel(Levels.level_1);
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 64, 255, 156),
+      backgroundColor: const Color.fromARGB(255, 64, 255, 156),
       body: Center(
         child: Container(
           width: media.size.width * 0.9,

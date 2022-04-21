@@ -173,14 +173,27 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
                                     return Container(
                                         margin: const EdgeInsets.only(top: 50),
                                         child: const Center(
-                                            child: Text("an Error Ocured")));
+                                            child: Text(
+                                          "Ops",
+                                          style: TextStyle(
+                                              fontSize: 32,
+                                              color: Colors.white),
+                                        )));
                                   } else {
                                     return ListView(
                                       children: [
-                                        ...friends
-                                            .map(
-                                                (e) => friendResultWidget(1, e))
-                                            .toList(),
+                                        ...(snapshot.data as List)
+                                            .asMap()
+                                            .entries
+                                            .map((item) {
+                                          final index = item.key + 1;
+                                          final value = item.value;
+                                          return friendResultWidget(index, {
+                                            'name': value['name'],
+                                            'time':
+                                                '${value['min']}:${value['s']}'
+                                          });
+                                        }).toList(),
                                       ],
                                     );
                                   }

@@ -21,7 +21,8 @@ class ChallengeModeGame extends StatefulWidget {
   State<ChallengeModeGame> createState() => _ChallengeModeGameState();
 }
 
-class _ChallengeModeGameState extends State<ChallengeModeGame> {
+class _ChallengeModeGameState extends State<ChallengeModeGame>
+    with WidgetsBindingObserver {
   bool disable = false;
   Timer? timer;
   int currentGameIndex = 0;
@@ -74,6 +75,7 @@ class _ChallengeModeGameState extends State<ChallengeModeGame> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance?.addObserver(this);
     startTime();
     successTimer = Timer(Duration(seconds: 5), () {
       setState(() {
@@ -85,6 +87,7 @@ class _ChallengeModeGameState extends State<ChallengeModeGame> {
   @override
   void dispose() {
     super.dispose();
+    WidgetsBinding.instance?.removeObserver(this);
     if (timer != null) {
       timer?.cancel();
     }
@@ -93,6 +96,17 @@ class _ChallengeModeGameState extends State<ChallengeModeGame> {
     }
     if (successTimer != null) {
       successTimer?.cancel();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      stopTimer();
+    }
+    if (state == AppLifecycleState.resumed) {
+      pause();
     }
   }
 
@@ -156,10 +170,8 @@ class _ChallengeModeGameState extends State<ChallengeModeGame> {
     Navigator.of(context).pushNamed(PauseScreen.path).then((value) {
       String parameter = value as String;
       if (parameter == "none") {
-        print('start time');
         startTime();
       } else if (parameter == 'q') {
-        print('pop');
         Navigator.of(context).pop();
       } else if (parameter == 'l') {}
     });
@@ -348,7 +360,7 @@ class _ChallengeModeGameState extends State<ChallengeModeGame> {
       });
       return;
     }
-    if (true) {
+    if (res == numberToLookFor) {
       final provider = Provider.of<AuthProvider>(context, listen: false);
 
       moveToNextLevel();
@@ -407,7 +419,7 @@ class _ChallengeModeGameState extends State<ChallengeModeGame> {
       });
       return;
     }
-    if (true) {
+    if (res == numberToLookFor) {
       final provider = Provider.of<AuthProvider>(context, listen: false);
 
       moveToNextLevel();
@@ -453,7 +465,6 @@ class _ChallengeModeGameState extends State<ChallengeModeGame> {
         countdown?.cancel();
         Navigator.of(context).pushNamed(ChallengeResultScreen.path,
             arguments: {'result': countdownData}).then((value) {
-          print('after pop 1 $value');
           Timer(Duration(seconds: 0), () {
             Navigator.of(context).pop(value);
           });
@@ -470,7 +481,6 @@ class _ChallengeModeGameState extends State<ChallengeModeGame> {
   void operateOnSecondLevel(Operation op) {
     if (disable) return;
     double res = double.parse(currentNumberInCenter);
-    // print(completeOperations);
     if (op == Operation.plus && completeOperations[0] == false) {
       res = res + plusOrMinus;
       completeOperations[0] = true;
@@ -500,7 +510,7 @@ class _ChallengeModeGameState extends State<ChallengeModeGame> {
       });
       return;
     }
-    if (true) {
+    if (res == numberToLookFor) {
       final provider = Provider.of<AuthProvider>(context, listen: false);
 
       moveToNextLevel();
@@ -558,7 +568,7 @@ class _ChallengeModeGameState extends State<ChallengeModeGame> {
       return;
     }
     // true
-    if (true) {
+    if (res == numberToLookFor) {
       moveToNextLevel();
       return;
     }

@@ -19,7 +19,8 @@ class ThirdLevelGame extends StatefulWidget {
   State<ThirdLevelGame> createState() => _ThirdLevelGameState();
 }
 
-class _ThirdLevelGameState extends State<ThirdLevelGame> {
+class _ThirdLevelGameState extends State<ThirdLevelGame>
+    with WidgetsBindingObserver {
   int id = 0;
   bool disable = false;
   Timer? timer;
@@ -42,13 +43,25 @@ class _ThirdLevelGameState extends State<ThirdLevelGame> {
     // applyWith = route['apply with']!;
     // currentNumberInCenter = numberInCenter;
     super.initState();
+    WidgetsBinding.instance?.addObserver(this);
     final provider = Provider.of<AuthProvider>(context, listen: false);
     provider.setNewCurrentlevel(Levels.level_3);
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    print(state);
+    if (state == AppLifecycleState.resumed) {
+      print('im paused right now');
+      pause();
+    }
+  }
+
+  @override
   void dispose() {
     super.dispose();
+    WidgetsBinding.instance?.removeObserver(this);
     if (timer != null) {
       timer?.cancel();
     }

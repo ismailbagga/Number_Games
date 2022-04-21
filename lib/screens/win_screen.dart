@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:number_game/providers/AuthProvider.dart';
+import 'package:provider/provider.dart';
 
 class WinScreen extends StatelessWidget {
   static const path = '/winscreen';
@@ -8,6 +10,7 @@ class WinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
+    final provider = Provider.of<AuthProvider>(context);
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 54, 244, 70),
       body: Center(
@@ -15,10 +18,11 @@ class WinScreen extends StatelessWidget {
           margin: EdgeInsets.only(top: media.padding.top + 50),
           width: media.size.width * 0.8,
           child: Column(children: [
-            const FittedBox(
+            FittedBox(
               child: Text(
-                'Congratulation You Win',
-                style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
+                provider.selectWord(15),
+                style:
+                    const TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(
@@ -28,7 +32,7 @@ class WinScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: const Text('Retry'),
+              child: Text(provider.selectWord(20)),
               style: ElevatedButton.styleFrom(
                   onPrimary: const Color.fromARGB(255, 255, 255, 255),
                   primary: const Color.fromARGB(255, 66, 0, 189),
@@ -43,7 +47,7 @@ class WinScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: const Text('More Games'),
+              child: Text(provider.selectWord(21)),
               style: ElevatedButton.styleFrom(
                   onPrimary: const Color.fromARGB(255, 255, 255, 255),
                   primary: const Color.fromARGB(255, 217, 5, 174),

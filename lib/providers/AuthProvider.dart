@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 
 // import 'package:excel/excel.dart';
 import 'package:flutter/cupertino.dart';
@@ -31,7 +32,6 @@ class User {
   }
 
   Map toJson() {
-    print('to json $personalBest');
     return {
       'email': email,
       'token': token,
@@ -82,15 +82,15 @@ class AuthProvider with ChangeNotifier {
         final temp = json.decode(storage.getString('user')!);
         temp['token'] = temp['token'];
         user = User.fromJson(temp);
-        print('my user ${user?.toJson()}');
-        print('is personal best found ${user?.personalBest != null}');
         if (user?.personalBest != null) {
           personalBest = user?.personalBest;
-          print('personal best setted');
+        } else {
+          if (storage.containsKey('lookForPersonalBest') &&
+              storage.containsKey('lookForPersonalBest') == true) {
+            findSinglePersonalBest(user?.name as String);
+          }
         }
-      } else {
-        print('user did not found');
-      }
+      } else {}
       setAvailablLanguage();
     });
     retrieveAppData();
@@ -101,6 +101,15 @@ class AuthProvider with ChangeNotifier {
     availableGames =
         json.decode(prefs.getString("availableGames")!) as List<dynamic>;
     notifyListeners();
+    if (prefs.containsKey("GamesCompletedSync") && isUserLoggedIn()) {
+      confirmAsyncGames(
+              json.encode(prefs.getString("GamesCompletedSync")) as List<int>)
+          .then((value) {
+        if (value == true) {
+          prefs.remove("GamesCompletedSync");
+        }
+      });
+    }
   }
 
   Future<void> setAvailablLanguage() async {
@@ -200,8 +209,44 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
+  Future<bool> confirmAsyncGames(List<int> gamesIds) async {
+    final url = Uri.https(
+      'flutter-numbers-game.herokuapp.com',
+      '/api/v1/personalBest/completeMultipleGames',
+    );
+    try {
+      final response = await http
+          .post(url, body: {"name": user?.name, "gamesIds": gamesIds});
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  Future<void> confirmGame(int gameId) async {
+    final url = Uri.https(
+        'flutter-numbers-game.herokuapp.com',
+        '/api/v1/personalBest/complete',
+        {"name": user?.name, "gameId": gameId.toString()});
+    try {
+      final response = await http.post(url, body: {});
+    } catch (error) {
+      SharedPreferences.getInstance().then((storage) {
+        List<int> games = [];
+        if (storage.containsKey("GamesCompletedSync")) {
+          games = [...(json.decode(storage.getString("GamesCompletedSync")!))];
+        }
+        games.add(gameId);
+        storage.setString("GamesCompletedSync", json.encode(games));
+      });
+    }
+  }
+
   void increaseLevel(Levels level, int gameId) {
     bool found = false;
+    if (isUserLoggedIn()) {
+      confirmGame(gameId);
+    }
     for (int i = 0; i < availableGames.length; i++) {
       if (gameId == (availableGames[i]['gameId'] as int)) {
         availableGames[i]['completed'] = true;
@@ -284,31 +329,33 @@ class AuthProvider with ChangeNotifier {
       accessToken = result.accessToken;
       final data =
           await FacebookAuth.i.getUserData(fields: 'email,name,friends');
-      print('data $data');
-      if (!data.containsKey('email') || accessToken == null) return [];
-      String email = data['email'];
-      Map? person = await findSinglePersonalBest(email);
 
+      if (!data.containsKey('email') || accessToken == null) return [];
+      String name = data['name'];
+      Map? person = await findSinglePersonalBest(name);
       if (person == null && personalBest == null) {
-        user = User(email, accessToken!.toJson(), data['name']);
+        user = User(data['email'], accessToken!.toJson(), name);
       }
       // else if ( person != null && personalBest == null)
 
       else {
         Map<String, int> pb;
-        print(person);
         if (personalBest == null && person != null) {
           pb = {
             'min': person['min'] as int,
             's': person['s'] as int,
           };
+          availableGames = person['state'];
+          await SharedPreferences.getInstance().then((value) {
+            value.setString("availableGames", json.encode(availableGames));
+          });
         } else if (person == null && personalBest != null) {
           pb = {
             'min': personalBest!['min']! as int,
             's': personalBest!['s']! as int,
           };
           submitPersonalBest(
-              {...personalBest!, 'name': data['name'], 'email': email});
+              {...personalBest!, 'name': name, 'email': data["email"]});
         } else {
           int count1 = person!['min'] * 60 + person['s'];
           int count2 = personalBest!['min']! * 60 + personalBest!['s']!;
@@ -320,54 +367,98 @@ class AuthProvider with ChangeNotifier {
           } else {
             pb = personalBest! as Map<String, int>;
             submitPersonalBest(
-                {...personalBest!, 'name': data['name'], 'email': email});
+                {...personalBest!, 'name': name, 'email': data['email']});
           }
         }
         user =
-            User(email, accessToken!.toJson(), data['name'], personalBest: pb);
+            User(data['email'], accessToken!.toJson(), name, personalBest: pb);
       }
       await SharedPreferences.getInstance().then((value) {
-        print('user is like this  $user');
         value.setString('user', json.encode(user?.toJson()));
 
         notifyListeners();
       });
-      print(data);
       return [];
     }
     return [];
   }
 
-  void findPersonalBest(List<String> email) {}
-  Future<Map?> findSinglePersonalBest(String email) async {
+  Future<Map?> findSinglePersonalBest(String name) async {
     final url = Uri.https('flutter-numbers-game.herokuapp.com',
-        '/api/v1/personalBest/friend', {"email": email});
-
+        '/api/v1/personalBest/friend', {"name": name});
+    final pref = await SharedPreferences.getInstance();
     try {
-      print(url.path);
       final response = await http.get(url);
       if (response.body == "") {
-        print('empty');
+        pref.setBool("lookForPersonalBest", false);
         return null;
       }
-
+      pref.setBool("lookForPersonalBest", false);
       return json.decode(response.body);
     } catch (error) {
-      rethrow;
+      pref.setBool("lookForPersonalBest", true);
     }
-    // Map<String,int>
   }
 
-  Future<dynamic> findFriendsList() async {
+  Future<List<dynamic>> findFriendsList() async {
     final tempAccessToken = await FacebookAuth.instance.accessToken;
     if (tempAccessToken != null) {
       final response =
           await FacebookAuth.instance.getUserData(fields: 'friends');
-      print('friends ${response["friends"]["data"]}');
-      return response['friends']['data'];
+      if (response.isEmpty) {
+        return [];
+      }
+      List<String> names = (response["friends"]["data"] as List<dynamic>)
+          .map((e) => e['name'] as String)
+          .toList();
+      names.add(user?.name as String);
+      final res = await findPersonalsBest(names);
+      return res;
+    } else {
+      user = null;
+      final pref = await SharedPreferences.getInstance();
+      pref.remove("user");
+      return [];
     }
-    await Future.delayed(const Duration(seconds: 10));
-    return [];
+  }
+
+  void submitPersonalBest(Map<String, dynamic> map) async {
+    final url = Uri.https(
+        'flutter-numbers-game.herokuapp.com', '/api/v1/personalBest/save');
+    try {
+      final response = await http.post(url,
+          headers: {
+            "content-type": "application/json",
+            "accept": "application/json",
+          },
+          body: json.encode(map));
+    } catch (error) {
+      await SharedPreferences.getInstance().then((storage) {
+        storage.setString("isPersonalBestSync", json.encode(map));
+      });
+    }
+  }
+
+  Future<List<dynamic>> findPersonalsBest(List<String> names) async {
+    final url = Uri.https(
+        'flutter-numbers-game.herokuapp.com', '/api/v1/personalBest/friends');
+    try {
+      final response = await http.post(
+        url,
+        body: json.encode({'emails': names}),
+        headers: {
+          "content-type": "application/json",
+          "accept": "application/json",
+        },
+      );
+      if (response.body == "") {
+        return [];
+      }
+      return json.decode(response.body) as List<dynamic>;
+    } catch (error) {
+      rethrow;
+    }
+    // Map<String,int>
   }
 
   String getBestResult() {
@@ -387,30 +478,10 @@ class AuthProvider with ChangeNotifier {
     });
   }
 
-  void submitPersonalBest(Map<String, dynamic> map) async {
-    final url = Uri.https(
-        'flutter-numbers-game.herokuapp.com', '/api/v1/personalBest/save');
-    try {
-      print('post body $map');
-      final response = await http.post(url,
-          headers: {
-            "content-type": "application/json",
-            "accept": "application/json",
-          },
-          body: json.encode(map));
-      print('requested sented ${response.body}');
-    } catch (error) {
-      rethrow;
-    }
-  }
-
   Map? updatePersonalBest(Map<String, int> map) {
-    print("inside update method $map ");
     final perf = SharedPreferences.getInstance();
     if (user == null) {
-      print("no user founded");
       if (personalBest != null) {
-        print('no personal best found');
         int newc = map['min']! * 60 + map['s']!;
         int oldc = personalBest!['min']! * 60 + personalBest!['s']!;
         if (oldc > newc) {
@@ -429,19 +500,16 @@ class AuthProvider with ChangeNotifier {
       submitPersonalBest({...map, 'name': user?.name, 'email': user?.email});
       user?.personalBest = map;
       perf.then((storage) {
-        print('user going to get encoded ${user?.toJson()}');
         storage.setString('user', json.encode(user?.toJson()));
 
         // notifyListeners();+
       });
-      print('user with no personal best found');
       return user?.personalBest;
     }
     int newtimeToSec = map['min']! * 60 + map['s']!;
     int oldtimeToSec = (user?.personalBest!['min'] as int) * 60 +
         (user?.personalBest!['s'] as int);
     if (newtimeToSec > oldtimeToSec) {
-      print('beat existing personal best ');
       submitPersonalBest({...map, 'name': user?.name, 'email': user?.email});
       user?.personalBest = map;
       perf.then((storage) {
@@ -451,7 +519,6 @@ class AuthProvider with ChangeNotifier {
 
       return map;
     } else {
-      print("no condition was satisfiad");
       return personalBest;
     }
   }
