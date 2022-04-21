@@ -158,10 +158,15 @@ class _MenuScreenState extends State<MenuScreen> {
           Container(
             margin: const EdgeInsets.only(top: 10),
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            color: Color.fromARGB(255, 26, 153, 195),
+            color: const Color.fromARGB(255, 26, 153, 195),
             width: query.width * 0.5,
             child: DropdownButton(
               iconSize: 55,
+              iconEnabledColor: Colors.black,
+              underline: Container(
+                height: 2,
+                color: const Color.fromARGB(255, 0, 0, 0),
+              ),
               isExpanded: true,
               value: provider.getSelectedLanguage(),
               items: const [
@@ -192,14 +197,6 @@ class _MenuScreenState extends State<MenuScreen> {
                   child: Text('italian'),
                   value: "italian",
                 ),
-                // DropdownMenuItem(
-                //   child: Text('English'),
-                //   value: "English",
-                // ),
-                // DropdownMenuItem(
-                //   child: Text('English'),
-                //   value: "English",
-                // ),
               ],
               onChanged: dropDownCallBack,
             ),
