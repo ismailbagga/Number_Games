@@ -122,8 +122,9 @@ class AuthProvider with ChangeNotifier {
     for (var table in excel.tables.keys) {
       for (var row in excel.tables[table]!.rows) {
         if (count == 0) {
-          for (String item in row) {
-            languages[item] = {};
+          for (Data? item in row) {
+            // print('${item?.value}');
+            languages[item?.value] = {};
           }
           count++;
         } else {
@@ -131,7 +132,7 @@ class AuthProvider with ChangeNotifier {
           for (int i = 0; i < keys.length; i++) {
             languages[keys[i]] = {}
               ..addAll(languages[keys[i]]!)
-              ..addAll({count: row[i]});
+              ..addAll({count: row[i]?.value});
           }
           count++;
         }
